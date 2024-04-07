@@ -1,4 +1,5 @@
-import multer from "multer.js";
+import multer from 'multer';
+
 
 
 const storage = multer.diskStorage({
@@ -6,9 +7,9 @@ const storage = multer.diskStorage({
     cb(null, "./public/temp");
   },
   filename: function (req, file, cb) {
-    
-    cb(null, file.orignalname);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix);
   },
 });
 
-export const upload = multer({ storage });
+export const upload = multer({ storage: storage });

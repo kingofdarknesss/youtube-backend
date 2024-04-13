@@ -75,6 +75,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
   } catch (error) {
     console.error("Error while toggling comment like:", error);
     throw new ApiError(500, "Error while toggling comment like");
+  }
 });
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
@@ -97,14 +98,14 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     if (existingLike) {
       return res
         .status(200)
-        .json(new ApiResponse(200, null, "Tweet unliked successfully"));
+        .json(new ApiResponse(200, null, "Tweet like delted"));
     } else {
       const newLike = new Like({ tweet: tweetId, likedBy: req.user._id });
       const savedLike = await newLike.save();
 
       return res
         .status(201)
-        .json(new ApiResponse(201, savedLike, "Tweet liked successfully"));
+        .json(new ApiResponse(201, savedLike, "Tweet liked"));
     }
   } catch (error) {
     console.error("Error while toggling tweet like:", error);
@@ -114,7 +115,35 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 
 const getLikedVideos = asyncHandler(async (req, res) => {
   //TODO: get all liked videos
+  const likedVideos = Like.find({
+    likedBy: req.user?._id,
+    },{
+       $or: [
+    { video:{$ne:null} },
+    { video:{$ne:undefined}  },
+ 
+      ]
+      })
+      if(!likedVideos){
+        throw new ApiError(500,"could bot fetch liked videos")
+      }
+
+
+
+      
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          likedVideos,
+          "Liked videos found successfully"
+        )
+      );
+
   
+ 
+
 });
 
 export { toggleCommentLike, toggleTweetLike, toggleVideoLike, getLikedVideos };
